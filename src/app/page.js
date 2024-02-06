@@ -1,95 +1,100 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client";
+import styles from "./page.module.scss";
+import { useState } from "react";
+import axios from "axios";
 
 export default function Home() {
+  const [text, setText] = useState("");
+  const [language, setLanguage] = useState("");
+  const [isRequestSent, setIsRequestSent] = useState(false);
+  const [translatedText, setTranslatedText] = useState("Give us a sec...");
+
+  const handleChange = (e) => {
+    setText(e.target.value);
+  };
+
+  const handleLanguageChange = (e) => {
+    setLanguage(e.target.value);
+  };
+
+  const handleClick = async (e) => {
+    e.preventDefault();
+    setIsRequestSent(!isRequestSent);
+
+    const translation = await axios.get("/api/translate", {
+      params: {
+        text: text,
+        language: language,
+      },
+    });
+
+    setTranslatedText(translation.data.translation);
+  };
+
   return (
     <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+      <div className={styles.container}>
+        <div className={styles.img}>
+          <img src="/banner.png" alt="Banner" />
+        </div>
+        <div className={styles.translatorContainer}>
+          <div className={styles.translator}>
+            <p className={styles.text}>Text to translate 👇</p>
+            <textarea
+              onChange={handleChange}
+              className={styles.input}
+            ></textarea>
+            <p className={styles.text}>
+              {isRequestSent ? "Your translation 👇" : "Select language 👇"}
+            </p>
+
+            {!isRequestSent ? (
+              <form className={styles.languages}>
+                <div className={styles.language}>
+                  <input
+                    onChange={handleLanguageChange}
+                    type="radio"
+                    name="language"
+                    id="spanish"
+                    value="Spanish"
+                  />
+                  <label htmlFor="spanish">Spanish</label>
+                </div>
+                <div className={styles.language}>
+                  <input
+                    onChange={handleLanguageChange}
+                    type="radio"
+                    name="language"
+                    id="french"
+                    value="French"
+                  />
+                  <label htmlFor="french">French</label>
+                </div>
+                <div className={styles.language}>
+                  <input
+                    onChange={handleLanguageChange}
+                    type="radio"
+                    id="Japanese"
+                    name="language"
+                    value="japanese"
+                  />
+                  <label htmlFor="japanese">Japanese</label>
+                </div>
+                <button onClick={handleClick} className={styles.button}>
+                  Translate
+                </button>
+              </form>
+            ) : (
+              <div className={styles.translation}>
+                <div className={styles.input}>{translatedText}</div>
+                <button onClick={handleClick} className={styles.button}>
+                  Try again
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
     </main>
-  )
+  );
 }
